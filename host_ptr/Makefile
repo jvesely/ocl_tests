@@ -1,7 +1,3 @@
-CXX=clang++
+OBJS=arr.o
 
-test: arr.o
-	clang++ $^ -o $@ -lOpenCL -Wall -Wextra
-
-clean:
-	rm -v *.o test
+include ../Makefile.common

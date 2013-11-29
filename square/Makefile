@@ -1,7 +1,3 @@
-CXX=clang++
+OBJS=list.o
 
-test: list.o
-	clang++ $^ -o $@ -lOpenCL -Wall -Wextra
-
-clean:
-	rm -v *.o test
+include ../Makefile.common

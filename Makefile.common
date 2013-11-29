@@ -1,0 +1,9 @@
+CXX=clang++
+CXXFLAGS=-Wall -Wextra
+
+test: $(OBJS)
+	clang++ $^ -o $@ -lOpenCL -Wall -Wextra
+
+clean:
+	rm -v *.o test
+
