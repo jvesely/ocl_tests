@@ -6,6 +6,7 @@
 #include <CL/cl.hpp>
 
 #define LONG
+#define SW
 
 const char kernelSource[] = "             \n" \
 "__kernel void test1(                   \n" \
@@ -88,8 +89,10 @@ int main(int argc, const char*argv[])
 		return 1;
 	}
 
+#ifdef SW
 	cl_uint result1[3];
 	cl::Buffer out1(ctx, CL_MEM_WRITE_ONLY, sizeof(result1));
+#endif
 #ifdef LONG
 	cl_ulong result2[3];
 	cl::Buffer out2(ctx, CL_MEM_WRITE_ONLY, sizeof(result2));
@@ -97,6 +100,9 @@ int main(int argc, const char*argv[])
 
 	/* Create kernel and set arguments */
 	try {
+		/* Command queue */
+		cl::CommandQueue cmd(ctx, devices[0]);
+#ifdef SW
 		cl::Kernel kernel1(prg, "test1");
 		kernel1.setArg(0, (cl_uint)X);
 		kernel1.setArg(1, (cl_uint)Y);
@@ -107,12 +113,11 @@ int main(int argc, const char*argv[])
 		kernel1.getWorkGroupInfo(devices[0], CL_KERNEL_COMPILE_WORK_GROUP_SIZE, &local);
 		std::cout << "Local size is: " << local[2] << std::endl;
 
-		/* Command queue */
-		cl::CommandQueue cmd(ctx, devices[0]);
 
 		cmd.enqueueNDRangeKernel(kernel1, cl::NDRange(0), cl::NDRange(1), cl::NDRange(1));
 		cmd.finish();
 		cmd.enqueueReadBuffer(out1, true, 0, sizeof(result1), result1, 0);
+#endif
 #ifdef LONG
 		/* test ulong */
 		cl::Kernel kernel2(prg, "test2");
@@ -131,9 +136,11 @@ int main(int argc, const char*argv[])
 	} catch (...) {
 		return 1;
 	}
+#ifdef SW
 	std::cout << X << " MUL " << Y << " = " << result1[0] << std::endl;
 	std::cout << X << " DIV " << Y << " = " << result1[1] << std::endl;
 	std::cout << X << " MOD " << Y << " = " << result1[2] << std::endl;
+#endif
 #ifdef LONG
 	std::cout << X << " MUL " << Y << " = " << result2[0] << std::endl;
 	std::cout << X << " DIV " << Y << " = " << result2[1] << std::endl;
