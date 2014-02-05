@@ -5,11 +5,20 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
-// Simple compute kernel which computes the square of an input array
+#define LONG
 
 const char kernelSource[] = "             \n" \
+"__kernel void test1(                   \n" \
+"   unsigned x,                             \n" \
+"   unsigned y,                             \n" \
+"   __global unsigned *output)              \n" \
+"{                                       \n" \
+"   output[0] = x * y;                   \n" \
+"   output[1] = x / y;                   \n" \
+"   output[2] = x % y;                   \n" \
+"}                                       \n" \
 "                                        \n" \
-"__kernel void square(                   \n" \
+"__kernel void test2(                   \n" \
 "   ulong x,                             \n" \
 "   ulong y,                             \n" \
 "   __global ulong *output)              \n" \
@@ -79,28 +88,42 @@ int main(int argc, const char*argv[])
 		return 1;
 	}
 
-	cl_ulong result[3];
-	cl::Buffer out(ctx, CL_MEM_WRITE_ONLY, sizeof(result));
+	cl_uint result1[3];
+	cl::Buffer out1(ctx, CL_MEM_WRITE_ONLY, sizeof(result1));
+#ifdef LONG
+	cl_ulong result2[3];
+	cl::Buffer out2(ctx, CL_MEM_WRITE_ONLY, sizeof(result2));
+#endif
 
 	/* Create kernel and set arguments */
 	try {
-		cl::Kernel kernel(prg, "square");
-		kernel.setArg(0, (cl_ulong)X);
-		kernel.setArg(1, (cl_ulong)Y);
-		kernel.setArg(2, out);
+		cl::Kernel kernel1(prg, "test1");
+		kernel1.setArg(0, (cl_uint)X);
+		kernel1.setArg(1, (cl_uint)Y);
+		kernel1.setArg(2, out1);
 
 		//todo: use this
 		cl::size_t<3> local;                // local domain size for our calculation
-		kernel.getWorkGroupInfo(devices[0], CL_KERNEL_COMPILE_WORK_GROUP_SIZE, &local);
+		kernel1.getWorkGroupInfo(devices[0], CL_KERNEL_COMPILE_WORK_GROUP_SIZE, &local);
 		std::cout << "Local size is: " << local[2] << std::endl;
 
 		/* Command queue */
 		cl::CommandQueue cmd(ctx, devices[0]);
 
-		cmd.enqueueNDRangeKernel(kernel, cl::NDRange(0), cl::NDRange(1), cl::NDRange(1));
+		cmd.enqueueNDRangeKernel(kernel1, cl::NDRange(0), cl::NDRange(1), cl::NDRange(1));
 		cmd.finish();
-		cmd.enqueueReadBuffer(out, true, 0, sizeof(result), result, 0);
+		cmd.enqueueReadBuffer(out1, true, 0, sizeof(result1), result1, 0);
+#ifdef LONG
+		/* test ulong */
+		cl::Kernel kernel2(prg, "test2");
+		kernel2.setArg(0, (cl_ulong)X);
+		kernel2.setArg(1, (cl_ulong)Y);
+		kernel2.setArg(2, out2);
 
+		cmd.enqueueNDRangeKernel(kernel2, cl::NDRange(0), cl::NDRange(1), cl::NDRange(1));
+		cmd.finish();
+		cmd.enqueueReadBuffer(out2, true, 0, sizeof(result2), result2, 0);
+#endif
 	} catch (cl::Error e) {
 		std::cerr << "Kernel failed: " << e.what() << " "
 			<< e.err() << std::endl;
@@ -108,9 +131,13 @@ int main(int argc, const char*argv[])
 	} catch (...) {
 		return 1;
 	}
-	std::cout << X << " MUL " << Y << " = " << result[0] << std::endl;
-	std::cout << X << " DIV " << Y << " = " << result[1] << std::endl;
-	std::cout << X << " MOD " << Y << " = " << result[2] << std::endl;
-
+	std::cout << X << " MUL " << Y << " = " << result1[0] << std::endl;
+	std::cout << X << " DIV " << Y << " = " << result1[1] << std::endl;
+	std::cout << X << " MOD " << Y << " = " << result1[2] << std::endl;
+#ifdef LONG
+	std::cout << X << " MUL " << Y << " = " << result2[0] << std::endl;
+	std::cout << X << " DIV " << Y << " = " << result2[1] << std::endl;
+	std::cout << X << " MOD " << Y << " = " << result2[2] << std::endl;
+#endif
 	return 0;
 }
