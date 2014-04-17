@@ -118,6 +118,7 @@ int main(int argc, const char*argv[])
 		cmd.finish();
 		cmd.enqueueReadBuffer(out1, true, 0, sizeof(result1), result1, 0);
 #endif
+		::std::cerr << "===========================================\n";
 #ifdef LONG
 		/* test ulong */
 		cl::Kernel kernel2(prg, "test2");
