@@ -1,8 +1,8 @@
-CXX=clang++
-CXXFLAGS=-Wall -Wextra
+CXX=g++
+CXXFLAGS=-Wall -Wextra -Wno-deprecated-declarations -g -I /home/vesely/mesa/include
 
 test: $(OBJS)
-	clang++ $^ -o $@ -lOpenCL -Wall -Wextra
+	g++ $^ -o $@ -lOpenCL -Wall -Wextra
 
 clean:
 	rm -v *.o test
