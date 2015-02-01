@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-Wall -Wextra -Wno-deprecated-declarations -g -I /home/vesely/mesa/include
+CXXFLAGS=-Wall -Wextra -Wno-deprecated-declarations -g -I /home/vesely/mesa/include --std=c++11
 
 test: $(OBJS)
 	g++ $^ -o $@ -lOpenCL -Wall -Wextra
