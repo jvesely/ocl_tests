@@ -137,14 +137,17 @@ int main(void)
 				                  data + start + size, 0.0,
 				                  square_accum);
 			length = sqrt(length);
-			float result = data[i] / length;
+			const float result = data[i] / length;
+			float real_length = std::accumulate(results + start,
+			                          results + start + size, 0.0,
+			                          square_accum);
 			if (result != results[i]) {
 				++errors;
 				std::cerr << "Incorrect element(" << i << "): "
 					<< data[i] << " result: " << results[i]
 					<< " correct: " << result
 					<< " difference: " << result - results[i]
-					<< std::endl;
+					<< " length: " << real_length << std::endl;
 			}
 		}
 
