@@ -76,7 +76,9 @@ int main(void)
 	/* Create program from source */
 	cl::Program::Sources src(1,
 		std::make_pair(kernelSource, std::strlen(kernelSource)));
-	for (unsigned size:{1,2,4}) {
+	for (unsigned size:{1,2,3,4}) {
+
+		const unsigned data_size = (size == 3) ? 4 : size;
 		const std::string vec(size == 1 ? "" : std::to_string(size));
 		std::cout << "Type: float" << vec << std::endl;
 		const std::string def("-DTYPE=float" + vec);
@@ -104,7 +106,7 @@ int main(void)
 			cl::Kernel kernel(prg, "norm");
 			kernel.setArg(0, in);
 			kernel.setArg(1, out);
-			kernel.setArg(2, (unsigned)DATA_SIZE/size);
+			kernel.setArg(2, (unsigned)DATA_SIZE/data_size);
 
 			//todo: use this
 //			cl::size_t<3> local;                // local domain size for our calculation
@@ -128,9 +130,13 @@ int main(void)
 		}
 		unsigned errors = 0;
 		for (int i = 0; i < DATA_SIZE; ++i) {
-			unsigned start = (i / size) * size;
-			double length = ::std::accumulate(data + start, data + start + size, 0.0, square_accum);
-			length =  sqrt(length);
+			if (size == 3 && (i % 4 == 3))
+				continue;
+			const unsigned start = (i / data_size) * data_size;
+			double length = ::std::accumulate(data + start,
+				                  data + start + size, 0.0,
+				                  square_accum);
+			length = sqrt(length);
 			float result = data[i] / length;
 			if (result != results[i]) {
 				++errors;
