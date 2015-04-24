@@ -23,7 +23,7 @@ const char kernelSource[] = "            \n" \
 "\n";
 
 enum {
-	DATA_SIZE = 12,
+	DATA_SIZE = 60,
 };
 
 float square_accum(float old, float new_val)
