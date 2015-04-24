@@ -136,7 +136,9 @@ int main(void)
 				++errors;
 				std::cerr << "Incorrect element(" << i << "): "
 					<< data[i] << " result: " << results[i]
-					<< " correct: " << result << std::endl;
+					<< " correct: " << result
+					<< " difference: " << result - results[i]
+					<< std::endl;
 			}
 		}
 
