@@ -26,7 +26,7 @@ enum {
 	DATA_SIZE = 12,
 };
 
-double square_accum(double old, double new_val)
+float square_accum(float old, float new_val)
 {
 	return old + (new_val * new_val);
 }
@@ -133,7 +133,7 @@ int main(void)
 			if (size == 3 && (i % 4 == 3))
 				continue;
 			const unsigned start = (i / data_size) * data_size;
-			double length = ::std::accumulate(data + start,
+			float length = ::std::accumulate(data + start,
 				                  data + start + size, 0.0,
 				                  square_accum);
 			length = sqrt(length);
