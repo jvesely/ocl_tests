@@ -42,6 +42,15 @@ static float to_float(unsigned code)
 	conv.u = code;
 	return conv.f;
 }
+static unsigned to_uint(float num)
+{
+	union {
+		float f;
+		unsigned u;
+	} conv;
+	conv.f = num;
+	return conv.u;
+}
 
 int main(int argc, const char*argv[])
 {
@@ -159,10 +168,9 @@ int main(int argc, const char*argv[])
 		return 1;
 	}
 	unsigned errors1 = 0, errors2 = 0;
-#define ACC 0.00000001f
 	for (int i = 0; i < DATA_SIZE; ++i) {
 		float result = fmin(data1[i], data2[i]);
-		if (abs(result - results[i]) >= ACC) {
+		if (to_uint(result) != to_uint(results[i])) {
 			++errors1;
 			std::cerr << "Incorrect element(" << i << "): "
 				<< data1[i] << ", " << data2[i] << " result: "
@@ -170,7 +178,7 @@ int main(int argc, const char*argv[])
 				<< std::endl;
 		}
 #ifdef VECTOR
-		if (abs(result - results2[i]) >= ACC) {
+		if (to_uint(result) != to_uint(results2[i])) {
 			++errors2;
 			std::cerr << "Incorrect element2(" << i << "): "
 				<< data1[i] << ", " << data2[i] << " result: "
