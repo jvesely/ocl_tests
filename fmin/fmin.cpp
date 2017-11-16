@@ -30,7 +30,7 @@ const char kernelSource[] = "             \n" \
 "\n";
 
 enum {
-	DATA_SIZE = 64,
+	DATA_SIZE = 16777216,
 };
 
 static float to_float(unsigned code)
@@ -52,27 +52,21 @@ static unsigned to_uint(float num)
 	return conv.u;
 }
 
+float data1[DATA_SIZE];       // original data set given to device
+float data2[DATA_SIZE];       // original data set given to device
+float results[DATA_SIZE];    // results returned from device
+float results2[DATA_SIZE];   // results returned from device
+
 int main(int argc, const char*argv[])
 {
 	(void) argc;
 	(void) argv;
 
-	float data1[DATA_SIZE];       // original data set given to device
-	float data2[DATA_SIZE];       // original data set given to device
-	float results[DATA_SIZE];    // results returned from device
-	float results2[DATA_SIZE];   // results returned from device
 
         for(unsigned i = 0; i < DATA_SIZE; i++) {
-	        data1[i] = rand() / (float)RAND_MAX;
+	        data1[i] = to_float(((i << 8) & 0x8000000) | 0x7f800000 | (i & 0x7fffff));
 	        data2[i] = rand() / (float)RAND_MAX;
 	}
-
-	// Special cases
-	data1[0] = to_float(0x7fe7afae);
-	data2[0] = to_float(0x134a752c);
-
-	data1[1] = to_float(0x10108d49);
-	data2[1] = to_float(0xffa66c5d);
 
 	cl::vector< cl::Platform > platformList;
 	cl::Platform::get(&platformList);
